@@ -674,23 +674,30 @@ fn create_inner(
                 .open_session(pkcs11_slot, uri.pin.clone())
                 .map_err(crate::implementation::err_external)?;
 
-            let generate_pkcs11_ec_key = |curve| {
-                pkcs11_session
-                    .clone()
-                    .generate_ec_key_pair(curve, uri.object_label.as_deref())
-                    .is_ok()
-            };
-
             for preferred_algorithm in preferred_algorithms {
                 match preferred_algorithm {
                     PreferredAlgorithm::NistP256 => {
-                        if generate_pkcs11_ec_key(openssl2::EcCurve::NistP256) {
+                        if pkcs11_session
+                            .clone()
+                            .generate_ec_key_pair(
+                                openssl2::EcCurve::NistP256,
+                                uri.object_label.as_deref(),
+                            )
+                            .is_ok()
+                        {
                             return Ok(());
                         }
                     }
 
                     PreferredAlgorithm::NistP384 => {
-                        if generate_pkcs11_ec_key(openssl2::EcCurve::NistP384) {
+                        if pkcs11_session
+                            .clone()
+                            .generate_ec_key_pair(
+                                openssl2::EcCurve::NistP384,
+                                uri.object_label.as_deref(),
+                            )
+                            .is_ok()
+                        {
                             return Ok(());
                         }
                     }
